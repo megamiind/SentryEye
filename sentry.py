@@ -71,7 +71,7 @@ class SentryEye:
                     print(f"{Fore.YELLOW}No new logs found.{Fore.WHITE}")
                     print(f"{Fore.CYAN}Waiting {monitor_seconds}.{Fore.WHITE}")
 
-                time.sleep(monitor_seconds) # sleep for 5 minutes before checking for new logs again
+                time.sleep(monitor_seconds) # sleep for specific time before checking for new logs again
 
 sentry_downloader = SentryEye(api_id, api_hash,channel_name, logs_dir)
 sentry_downloader.download_logs()
