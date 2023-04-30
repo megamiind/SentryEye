@@ -1,0 +1,4 @@
+telethon
+colorama
+configparser
+pytz
