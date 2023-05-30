@@ -1,12 +1,12 @@
-from telethon.sync import TelegramClient
-from colorama import Style
-from telethon import types
-from colorama import Fore
+import os
+import time
 import configparser
 import datetime
 import pytz
-import os
-import time
+from colorama import Fore, Style
+from telethon.sync import TelegramClient
+from telethon import types
+
 
 config = configparser.ConfigParser()
 config.read('config.ini') # reading the config.ini file
@@ -27,10 +27,25 @@ class SentryEye:
         self.channel_name = channel_name
         self.logs_dir = logs_dir
 
+    def banner():
+        banner = r"""   
+   _____            __                ______         
+  / ___/___  ____  / /________  __   / ____/_  _____ 
+  \__ \/ _ \/ __ \/ __/ ___/ / / /  / __/ / / / / _ \
+ ___/ /  __/ / / / /_/ /  / /_/ /  / /___/ /_/ /  __/
+/____/\___/_/ /_/\__/_/   \__, /  /_____/\__, /\___/ 
+                         /____/         /____/       
+        """
+        print(Fore.BLUE + banner + Style.RESET_ALL)
+
     def progress_callback(self, current, total):
-        print(f"{Fore.GREEN}Downloaded: {Fore.YELLOW}{current / 1024 / 1024:.2f}MB / {total / 1024 / 1024:.2f}MB{Fore.WHITE} ({current * 100 / total:.1f}%)")
+        progress = current * 100 / total
+        downloaded_mb = current / 1024 / 1024
+        total_mb = total / 1024 / 1024
+        print(f"\r{Fore.GREEN}Downloaded: {Fore.YELLOW}{downloaded_mb:.2f}MB / {total_mb:.2f}MB{Fore.WHITE} ({progress:.1f}%)", end="")
 
     def download_logs(self):
+        SentryEye.banner()
         client = TelegramClient('scraping_session', self.api_id, self.api_hash)
         with client:
             tz = pytz.utc # set timezone to UTC
@@ -38,11 +53,11 @@ class SentryEye:
             if days_back <= 0:
                 # set last_message_date to start from the beginning of today
                 last_message_date = last_message_date.replace(hour=0, minute=0, second=0, microsecond=0)
-                print(f"{Fore.YELLOW}You chossed to download today's messages.\n========================\n{Fore.WHITE}")
+                print(f"{Fore.YELLOW}Downloading messages from today.\n================================\n{Fore.WHITE}")
             else:
                 # set last_message_date to start from the specified number of days ago
                 last_message_date = last_message_date - datetime.timedelta(days=days_back)
-                print(f"{Fore.YELLOW}You chossed to download messages for the past {days_back} days.\n========================{Fore.WHITE}")
+                print(f"{Fore.YELLOW}Downloading messages from the past {days_back} days.\n==========================================={Fore.WHITE}")
 
             while True:
                 messages = client.iter_messages(self.channel_name, offset_date=last_message_date, reverse=True)
